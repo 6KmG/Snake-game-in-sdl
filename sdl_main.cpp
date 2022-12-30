@@ -20,7 +20,7 @@
 #define CIRCLECOLOR 0,68,130,255
 #define SPEED 600
 #define FPS 77
-#define locked -1   // I set up a third option alongside true and false
+#define locked 2   // I set up a third option alongside true and false
 
 const int UpdateFrameSpeed = 1000 / FPS;
 const double DELAY = 0.25;
