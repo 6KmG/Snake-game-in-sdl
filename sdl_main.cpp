@@ -4,12 +4,9 @@
 // Debug mode compilation: cd $dir;g++ sdl_main.cpp -Iinclude -Llib -Wall -lmingw32 -lSDL2main -lSDL2 -o sdl_main
 // Release mode compilation: g++ sdl_main.cpp -s -mwindows -Iinclude -Llib -Wall -lmingw32 -lSDL2main -lSDL2 -o sdl_main
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>  // For sprintf
 #include "include\SDL.h"
 #include <time.h>
-#include <math.h>
 #include <windows.h>
 
 #define WIDTH 800
@@ -20,18 +17,21 @@
 #define CIRCLECOLOR 0,68,130,255
 #define SPEED 600
 #define FPS 77
+#define MAXSNAKELEN 10000   // Don't go above 1 million
 #define locked 2   // I set up a third option alongside true and false
 
-const int UpdateFrameSpeed = 1000 / FPS;
-const double DELAY = 0.25;
+const short UpdateFrameSpeed = 1000 / FPS;
+const float DELAY = 0.125;
 
 double cooldown = 0;
-int i = 0;
-short count = (int)(FPS/14)*6+3;
-short start;
+unsigned short i = 0;
+unsigned short count = (int)(FPS/14)*6+3;
+unsigned short start;
 char title[64];
-unsigned char score = 0;
+unsigned short score = 0;
 char ending[40];
+long long FrameRateOutputSpeed = time(0) + 1;
+unsigned short FrameCounter = 0;
 
 void DrawRect(SDL_Renderer* renderer, short x, short y, short w, short h, char r, char g, char b, char a) {
   SDL_Rect rect;
@@ -43,7 +43,7 @@ void DrawRect(SDL_Renderer* renderer, short x, short y, short w, short h, char r
   SDL_RenderFillRect(renderer, &rect);
 }
 
-// There's no ready to use time function with sub-second detail, so I made one
+// There's no ready to use time function with sub-second detail, so I made one based on chatGPT's idea
 double uTime(){
     struct timespec tp;
     clock_gettime(CLOCK_REALTIME, &tp);
@@ -51,15 +51,15 @@ double uTime(){
 }
 
 // I haven't found a function in the sdl library which draws a filled circle so I copy pasted one from Stackoverflow
-void DrawCircle(SDL_Renderer *renderer, int x, int y, int radius, char r, char g, char b, char a)
+void DrawCircle(SDL_Renderer *renderer, short x, short y, short radius, char r, char g, char b, char a)
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
-    for (int w = 0; w < radius * 2; w++)
+    for (short w = 0; w < radius * 2; w++)
     {
-        for (int h = 0; h < radius * 2; h++)
+        for (short h = 0; h < radius * 2; h++)
         {
-            int dx = radius - w;
-            int dy = radius - h;
+            short dx = radius - w;
+            short dy = radius - h;
             if ((dx*dx + dy*dy) <= (radius * radius))
             {
                 SDL_RenderDrawPoint(renderer, x + dx, y + dy);
@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
     
     // I use dynamic allocation since I think I this doesn't fit in the stack
     // I store the cords in 2 elements of list, first is x, second is y and so on
-    short* SnakeLen = (short*) malloc(10000 * sizeof(short));
-    memset(SnakeLen,-100,10000 * sizeof(short));
+    short SnakeLen[MAXSNAKELEN];
+    memset(SnakeLen,-100,MAXSNAKELEN * sizeof(short));
 
     // Random circle position
     short circleX = rand()%(WIDTH - 30) + 15;
@@ -105,15 +105,15 @@ int main(int argc, char *argv[])
     char running = true;
     while(running)
     {
-        // The window title
-        uint64_t current_time = SDL_GetPerformanceCounter();
-        static uint64_t previous_time = 0;
-        uint64_t elapsed_time = current_time - previous_time;
-        previous_time = current_time;
-        double fps = (double)SDL_GetPerformanceFrequency() / elapsed_time;
-        sprintf(title, "Snake game | %f | Score: %d",fps,score);
-        SDL_SetWindowTitle(window, title);
-
+        // The window title with the simpliest fps counter
+        FrameCounter++;
+        if (time(0)>FrameRateOutputSpeed){
+            sprintf(title, "Snake game | FPS: %d | Score: %d",FrameCounter,score);
+            SDL_SetWindowTitle(window, title);
+            FrameRateOutputSpeed++;
+            FrameCounter = 0;
+        }
+        
         // Render the background
         SDL_SetRenderDrawColor(renderer, BACKGROUNDCOLOR);
         SDL_RenderClear(renderer);
@@ -216,6 +216,5 @@ int main(int argc, char *argv[])
     SDL_Quit();
     sprintf(ending,"Score: %d",score);
     MessageBox(NULL, ending, "Your Score", MB_OK);
-    free(SnakeLen);
     return 0;
 }
