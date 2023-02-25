@@ -1,6 +1,6 @@
 git init
 git add .
-git commit -m "testig"
+git commit -m "testing"
 git remote add origin https://github.com/6KmG/Snake-game-in-sdl.git
 git fetch
 git merge origin/main
