@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
                 running = false;
             }
         }
+        
         if(SDL_PollEvent(&windowEvent))
         {
             switch(windowEvent.type)
