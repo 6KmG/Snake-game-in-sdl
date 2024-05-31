@@ -1,9 +1,7 @@
 #pragma once
 
-#include <stdio.h>  // For sprintf
+#include <stdio.h>
 #include <time.h>
-#include <string.h>
-#include <sys/time.h>
 
 #ifdef _WIN32
 #include "include/SDL.h"
