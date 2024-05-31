@@ -1,13 +1,18 @@
 #pragma once
 
-#include <SDL.h>
 #include <stdio.h>  // For sprintf
 #include <time.h>
 #include <string.h>
 #include <sys/time.h>
 
-#define WIDTH 1280
-#define HEIGHT 720
+#ifdef _WIN32
+#include "include/SDL.h"
+#else
+#include <SDL2/SDL.h>
+#endif
+
+#define WIDTH 800
+#define HEIGHT 450
 #define BACKGROUND_COLOR 101,154,210,255
 #define BODYCOLOR 255,255,255,255
 #define HEADCOLOR 255,255,255,255
@@ -15,6 +20,8 @@
 #define SPEED 600
 #define FPS 60
 #define MAXSNAKELEN 10000   // Don't go above 1 million
+#define DELAY 0.125
+
 #define locked 2   // I set up a third option alongside true and false
 #define false 0
 #define true 1

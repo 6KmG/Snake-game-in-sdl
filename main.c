@@ -1,17 +1,21 @@
 // Snake game made by 6kmg. Made with using the SDL library. Credits to ChatGPT too.
 // Note: Changing the speed might break the game and the score counter is an unsigned char, so if u reach 256 it will turn to 0
-#include <SDL.h>
 #include <stdio.h>  // For sprintf
 #include <time.h>
 #include <string.h>
 #include <sys/time.h>
+
+#ifdef _WIN32
+#include "include/SDL.h"
+#else
+#include <SDL2/SDL.h>
+#endif
 
 #include "func.c"
 
 int main(int argc, char *argv[])  
 {
     const short UpdateFrameSpeed = 1000 / FPS;
-    const float DELAY = 0.125;
 
     double cooldown = 0;
     unsigned short i = 0;
