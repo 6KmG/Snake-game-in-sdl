@@ -1,68 +1,14 @@
 // Snake game made by 6kmg. Made with using the SDL library. Credits to ChatGPT too.
-// Note: Changing the speed might break the game and the score counter is an unsigned char, so if u reach 256 it turns to 0
-
+// Note: Changing the speed might break the game and the score counter is an unsigned char, so if u reach 256 it will turn to 0
 #include <SDL.h>
 #include <stdio.h>  // For sprintf
 #include <time.h>
+#include <string.h>
+#include <sys/time.h>
 
-#define WIDTH 800
-#define HEIGHT 480
-#define BACKGROUND_COLOR 101,154,210,255
-#define BODYCOLOR 255,255,255,255
-#define HEADCOLOR 255,255,255,255
-#define CIRCLECOLOR 0,68,130,255
-#define SPEED 600
-#define FPS 60
-#define MAXSNAKELEN 10000   // Don't go above 1 million
-#define locked 2   // I set up a third option alongside true and false
-#define false 0
-#define true 1
+#include "func.c"
 
-void DrawRect(
-    SDL_Renderer* renderer, 
-    short x, short y, short w, short h, 
-    char r, char g, char b, char a
-    ) {
-    SDL_Rect rect;
-    rect.x = x;
-    rect.y = y;
-    rect.w = w;
-    rect.h = h;
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
-    SDL_RenderFillRect(renderer, &rect);
-}
-
-// There's no ready to use time function with sub-second detail, so I made one based on chatGPT's idea
-double uTime(){
-    struct timeval tv;
-    mingw_gettimeofday(&tv, 0);
-    return (double) time(0) + ((double) tv.tv_usec / 1000000);
-}
-
-// I haven't found a function in the sdl library which draws 
-// a filled circle so I copy pasted one from Stackoverflow
-void DrawCircle(
-    SDL_Renderer *renderer, 
-    short x, short y, short radius, 
-    char r, char g, char b, char a
-    )
-{
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
-    for (short w = 0; w < radius * 2; w++)
-    {
-        for (short h = 0; h < radius * 2; h++)
-        {
-            short dx = radius - w;
-            short dy = radius - h;
-            if ((dx * dx + dy * dy) <= (radius * radius))
-            {
-                SDL_RenderDrawPoint(renderer, x + dx, y + dy);
-            }
-        }
-    }
-}
-
-int SDL_main(int argc, char *argv[])  
+int main(int argc, char *argv[])  
 {
     const short UpdateFrameSpeed = 1000 / FPS;
     const float DELAY = 0.125;
@@ -143,27 +89,15 @@ int SDL_main(int argc, char *argv[])
         }
         // Draws the first 3 tiles and updates the array
         else{ 
-            DrawRect(
-                renderer, 
-                SnakeLen[(int)(FPS/14)*2], SnakeLen[(int)(FPS/14)*2+1], 
-                30, 
-                30, 
-                BODYCOLOR
-            );
-            DrawRect(
-                renderer, 
-                SnakeLen[(int) (FPS / 14) * 4], SnakeLen[(int) (FPS / 14) * 4 + 1], 
-                30, 
-                30, 
-                BODYCOLOR
-            );
-            DrawRect(
-                renderer, 
-                SnakeLen[(int) (FPS / 14) * 6], SnakeLen[(int) (FPS / 14) * 6 + 1], 
-                30, 
-                30, 
-                BODYCOLOR
-            );
+            for (int i = 1; i < 4; i++){
+                DrawRect(
+                    renderer, 
+                    SnakeLen[(int)(FPS/14)*i*2], SnakeLen[(int)(FPS/14)*i*2 + 1], 
+                    30, 
+                    30, 
+                    BODYCOLOR
+                );
+            }
             SnakeLen[0] = head.x;
             SnakeLen[1] = head.y;
             for (short j = count; j > 2; j -= 2){
@@ -205,7 +139,7 @@ int SDL_main(int argc, char *argv[])
                 // opposite direction is forbidden and checks if the cooldown is over
                 case SDL_KEYDOWN:
                     if(
-                        windowEvent.key.keysym.sym == SDLK_d && 
+                        windowEvent.key.keysym.sym == MOVERIGHT && 
                         movements[3] != locked && 
                         uTime() > cooldown
                         ){
@@ -216,7 +150,7 @@ int SDL_main(int argc, char *argv[])
                         cooldown = uTime() + DELAY;
                     }
                     if(
-                        windowEvent.key.keysym.sym == SDLK_a && 
+                        windowEvent.key.keysym.sym == MOVELEFT && 
                         movements[2] != locked && 
                         uTime() > cooldown
                         ){
@@ -227,7 +161,7 @@ int SDL_main(int argc, char *argv[])
                         cooldown = uTime()+DELAY;
                     }
                     if(
-                        windowEvent.key.keysym.sym == SDLK_w && 
+                        windowEvent.key.keysym.sym == MOVEUP && 
                         movements[0] != locked && 
                         uTime() > cooldown
                         ){
@@ -238,7 +172,7 @@ int SDL_main(int argc, char *argv[])
                         cooldown = uTime() + DELAY;
                     }
                     if(
-                        windowEvent.key.keysym.sym == SDLK_s && 
+                        windowEvent.key.keysym.sym == MOVEDOWN && 
                         movements[1] != locked && 
                         uTime() > cooldown
                         ){

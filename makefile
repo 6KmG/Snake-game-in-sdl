@@ -1,3 +1,29 @@
-all:
-	g++ -g snake_game.cpp -Iinclude -Llib -Wall -lmingw32 -lSDL2main -lSDL2 -o snake_game_debug; snake_game_debug
-	# g++ snake_game.cpp -s -mwindows -Iinclude -Llib -Wall -lmingw32 -lSDL2main -lSDL2 -o snake_game; snake_game
+# Define compiler and flags
+CC := gcc
+CFLAGS := -Wall -Wextra -std=c11
+
+# Define source and target
+SRC := main.c
+TARGET := main
+
+# Check the OS
+ifeq ($(OS),Windows_NT)
+    # Windows specific settings
+    SDL_CFLAGS := $(shell sdl2-config --cflags)
+    SDL_LDFLAGS := $(shell sdl2-config --libs)
+    RM := del /Q
+else
+    # Linux specific settings
+    SDL_CFLAGS := $(shell sdl2-config --cflags)
+    SDL_LDFLAGS := $(shell sdl2-config --libs)
+    RM := rm -f
+endif
+
+# Build target
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -o $(TARGET) $(SRC) $(SDL_LDFLAGS)
+
+# Clean target
+.PHONY: clean
+clean:
+	$(RM) $(TARGET)
